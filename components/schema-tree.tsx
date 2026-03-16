@@ -1,29 +1,33 @@
 "use client";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { memo, useCallback } from "react";
 import { SchemaTreeNode } from "@/components/schema-tree-node";
-import { getAllPaths, type SchemaNode } from "@/lib/json-schema";
+import type { SchemaNode } from "@/lib/json-schema";
+import type { CheckState } from "@/hooks/use-json-stripper";
 
 interface SchemaTreeProps {
   schema: SchemaNode;
-  excludedPaths: Set<string>;
+  checkStates: Map<string, CheckState>;
+  pathSizes: Map<string, number>;
+  excludedCount: number;
   onToggle: (path: string) => void;
   onToggleWithChildren: (node: SchemaNode, exclude: boolean) => void;
 }
 
-export function SchemaTree({
+export const SchemaTree = memo(function SchemaTree({
   schema,
-  excludedPaths,
+  checkStates,
+  pathSizes,
+  excludedCount,
   onToggle,
   onToggleWithChildren,
 }: SchemaTreeProps) {
-  const allPaths = getAllPaths(schema);
-  const excludedCount = allPaths.filter((p) => excludedPaths.has(p)).length;
-  const allExcluded = excludedCount === allPaths.length;
+  const rootState = checkStates.get(schema.path) ?? "checked";
+  const allExcluded = rootState === "unchecked";
 
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback(() => {
     onToggleWithChildren(schema, !allExcluded);
-  };
+  }, [onToggleWithChildren, schema, allExcluded]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -46,16 +50,17 @@ export function SchemaTree({
           {allExcluded ? "select all" : "deselect all"}
         </button>
       </div>
-      <ScrollArea className="max-h-[450px]">
+      <div className="max-h-[450px] overflow-auto">
         <div className="pr-3">
           <SchemaTreeNode
             node={schema}
-            excludedPaths={excludedPaths}
+            checkStates={checkStates}
+            pathSizes={pathSizes}
             onToggle={onToggle}
             onToggleWithChildren={onToggleWithChildren}
           />
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
-}
+});

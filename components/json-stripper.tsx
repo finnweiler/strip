@@ -4,7 +4,7 @@ import { useJsonStripper } from "@/hooks/use-json-stripper";
 import { JsonInput } from "@/components/json-input";
 import { SchemaTree } from "@/components/schema-tree";
 import { JsonPreview } from "@/components/json-preview";
-import { Scissors } from "lucide-react";
+import { Scissors, Loader2 } from "lucide-react";
 
 export function JsonStripper() {
   const {
@@ -13,6 +13,9 @@ export function JsonStripper() {
     parseResult,
     schema,
     excludedPaths,
+    checkStates,
+    pathSizes,
+    processing,
     formatted,
     minified,
     stats,
@@ -41,18 +44,23 @@ export function JsonStripper() {
               Paste JSON, remove fields you don&apos;t need, copy the result.
             </p>
           </div>
-          {stats && (
-            <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground font-mono">
-              <span>{stats.originalSize} in</span>
-              <span className="text-teal">→</span>
-              <span>{stats.minifiedSize} out</span>
-              {stats.savedPercent > 0 && (
-                <span className="text-teal font-medium">
-                  -{stats.savedPercent}%
-                </span>
-              )}
-            </div>
-          )}
+          <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground font-mono">
+            {processing && (
+              <Loader2 className="size-3.5 text-teal animate-spin" />
+            )}
+            {stats && (
+              <>
+                <span>{stats.originalSize} in</span>
+                <span className="text-teal">→</span>
+                <span>{stats.minifiedSize} out</span>
+                {stats.savedPercent > 0 && (
+                  <span className="text-teal font-medium">
+                    -{stats.savedPercent}%
+                  </span>
+                )}
+              </>
+            )}
+          </div>
         </header>
 
         {/* Main grid */}
@@ -72,7 +80,9 @@ export function JsonStripper() {
               <div className="rounded-xl border border-border bg-card p-4">
                 <SchemaTree
                   schema={schema}
-                  excludedPaths={excludedPaths}
+                  checkStates={checkStates}
+                  pathSizes={pathSizes}
+                  excludedCount={excludedPaths.size}
                   onToggle={togglePath}
                   onToggleWithChildren={togglePathWithChildren}
                 />
@@ -81,12 +91,13 @@ export function JsonStripper() {
           </div>
 
           {/* Right: Preview */}
-          <div className="lg:sticky lg:top-6 lg:self-start">
-            <div className="rounded-xl border border-border bg-card">
+          <div className="lg:sticky lg:top-6 lg:self-start min-w-0">
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
               <JsonPreview
                 formatted={formatted}
                 minified={minified}
                 stats={stats}
+                processing={processing}
                 copiedState={copiedState}
                 onCopy={copyToClipboard}
               />

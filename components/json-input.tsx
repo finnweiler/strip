@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Trash2 } from "lucide-react";
 import type { ParseResult } from "@/lib/json-strip";
@@ -11,7 +12,7 @@ interface JsonInputProps {
   onReset: () => void;
 }
 
-export function JsonInput({
+export const JsonInput = memo(function JsonInput({
   value,
   onChange,
   parseResult,
@@ -62,4 +63,4 @@ export function JsonInput({
       )}
     </div>
   );
-}
+});
