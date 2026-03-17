@@ -13,6 +13,8 @@ interface JsonPreviewProps {
     minifiedSize: string;
     formattedSize: string;
     savedPercent: number;
+    formattedTokens: number;
+    minifiedTokens: number;
   } | null;
   processing: boolean;
   copiedState: "none" | "minified" | "formatted";
@@ -87,6 +89,8 @@ export const JsonPreview = memo(function JsonPreview({
           {stats && (
             <span className="text-[10px] font-mono text-muted-foreground tabular-nums">
               {activeTab === "formatted" ? stats.formattedSize : stats.minifiedSize}
+              {" · "}
+              {(activeTab === "formatted" ? stats.formattedTokens : stats.minifiedTokens).toLocaleString()} tokens
             </span>
           )}
         </div>

@@ -9,6 +9,7 @@ import {
   type ParseResult,
 } from "@/lib/json-strip";
 import type { WorkerRequest, WorkerResponse } from "@/lib/strip-worker";
+import { estimateTokenCount } from "tokenx";
 
 export type CheckState = "checked" | "unchecked" | "indeterminate";
 
@@ -59,6 +60,8 @@ export function useJsonStripper() {
     minifiedSize: string;
     formattedSize: string;
     savedPercent: number;
+    formattedTokens: number;
+    minifiedTokens: number;
   } | null>(null);
 
   const workerRef = useRef<Worker | null>(null);
@@ -85,6 +88,8 @@ export function useJsonStripper() {
         minifiedSize: formatBytes(minifiedSize),
         formattedSize: formatBytes(formattedSize),
         savedPercent: Math.max(0, savedPercent),
+        formattedTokens: estimateTokenCount(formatted),
+        minifiedTokens: estimateTokenCount(minified),
       });
     };
     return () => {
